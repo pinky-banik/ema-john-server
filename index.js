@@ -28,7 +28,9 @@ async function run() {
       await client.connect(); 
       const database = client.db("ema-john");
       const productsCollection = database.collection("products");
-      
+      const ordersCollection =database.collection("orders");
+
+
       //get api
       app.get('/products', async (req, res) => {
         console.log(req.query)
@@ -59,9 +61,14 @@ async function run() {
     res.json(products);
     });
   
-     
-    //   const result = await haiku.insertOne(doc)
-    //   console.log(`A document was inserted with the _id: ${result.insertedId}`);
+    //add order api
+    app.post ('/orders', async(req,res)=>{
+      const order = req.body;
+      const result = await ordersCollection.insertOne(order);
+      res.json(result);
+        console.log(`A document was inserted with the _id: ${result.insertedId}`);
+    })
+    
   
     } finally {
   
