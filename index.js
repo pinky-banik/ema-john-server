@@ -31,6 +31,7 @@ async function run() {
       
       //get api
       app.get('/products', async (req, res) => {
+        console.log(req.query)
         const cursor = productsCollection.find({});
         const page = req.query.page;
         const size = parseInt(req.query.size);
@@ -50,10 +51,12 @@ async function run() {
         });
       });
 
-    //post api
+    //use post api to get data by keys
     app.post ('/products/bykeys',async(req,res)=>{
-    console.log("bykeys");
-    res.send("hitting post");
+    const keys =(req.body);
+    const query = {key:{$in: keys}}
+    const products = await productsCollection.find(query).toArray();
+    res.json(products);
     });
   
      
