@@ -64,6 +64,7 @@ async function run() {
     //add order api
     app.post ('/orders', async(req,res)=>{
       const order = req.body;
+      order.createdAt = new Date();
       const result = await ordersCollection.insertOne(order);
       res.json(result);
         console.log(`A document was inserted with the _id: ${result.insertedId}`);
