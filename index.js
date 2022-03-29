@@ -1,5 +1,6 @@
 const express = require('express');
 const { MongoClient } = require('mongodb');
+var admin = require("firebase-admin");
 
 const cors = require('cors');
 require('dotenv').config();
@@ -7,6 +8,13 @@ require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 5000;
+
+//firebase admin initialization 
+var serviceAccount = require("./ema-john-pinky-firebase-adminsdk-ifxv6-cf3170583e.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
 
 
 //middleware
@@ -19,6 +27,22 @@ app.use(express.json());
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.5f7tq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 
 const client = new MongoClient(uri);
+
+
+async function verifyToken(req,res,next){
+  if(req.headers?.authorization.startsWith('Bearer ')){
+    const idToken = req.headers.authorization.split('Bearer ')[1];
+    try{
+      const decodedUser = await admin.auth.auth().verifyToken(idToken);
+      req.decodedUserEmail = decodedUser.email;
+    }
+    catch{
+
+    }
+  }
+  next();
+  
+};
 
 
 async function run() {
@@ -62,18 +86,19 @@ async function run() {
     });
   
     //add order api
-    app.get ('/orders',async(req,res)=>{
-      console.log(req.headers)
-      let query ={};
-      const email=(req.query.email);
-      if(email){
-        query={email:email}
+    app.get('/orders', verifyToken, async (req, res) => {
+      const email = req.query.email;
+      if (req.decodedUserEmail === email) {
+          const query = { email: email };
+          const cursor = ordersCollection.find(query);
+          const orders = await cursor.toArray();
+          res.json(orders);
       }
-      const cursor = ordersCollection.find(query);
-      const orders = await cursor.toArray();
-      res.json(orders);
-    })
+      else {
+          res.status(401).json({ message: 'User not authorized' })
+      }
 
+     });
     app.post ('/orders', async(req,res)=>{
       
       const order = req.body;
