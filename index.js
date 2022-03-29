@@ -63,7 +63,12 @@ async function run() {
   
     //add order api
     app.get ('/orders',async(req,res)=>{
-      const cursor = ordersCollection.find({});
+      let query ={};
+      const email=(req.query.email);
+      if(email){
+        query={email:email}
+      }
+      const cursor = ordersCollection.find(query);
       const orders = await cursor.toArray();
       res.json(orders);
     })
