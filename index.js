@@ -62,6 +62,12 @@ async function run() {
     });
   
     //add order api
+    app.get ('/orders',async(req,res)=>{
+      const cursor = ordersCollection.find({});
+      const orders = await cursor.toArray();
+      res.json(orders);
+    })
+
     app.post ('/orders', async(req,res)=>{
       const order = req.body;
       order.createdAt = new Date();
