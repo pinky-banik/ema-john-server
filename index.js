@@ -29,21 +29,19 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@clu
 const client = new MongoClient(uri);
 
 
-async function verifyToken(req,res,next){
-  if(req.headers?.authorization.startsWith('Bearer ')){
-    const idToken = req.headers.authorization.split('Bearer ')[1];
-    try{
-      const decodedUser = await admin.auth.auth().verifyToken(idToken);
-      req.decodedUserEmail = decodedUser.email;
-    }
-    catch{
+async function verifyToken(req, res, next) {
+  if (req.headers?.authorization?.startsWith('Bearer ')) {
+      const idToken = req.headers.authorization.split('Bearer ')[1];
+      try {
+          const decodedUser = await admin.auth().verifyIdToken(idToken);
+          req.decodedUserEmail = decodedUser.email;
+      }
+      catch {
 
-    }
+      }
   }
   next();
-  
 };
-
 
 async function run() {
 
