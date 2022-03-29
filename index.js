@@ -63,6 +63,7 @@ async function run() {
   
     //add order api
     app.get ('/orders',async(req,res)=>{
+      console.log(req.headers)
       let query ={};
       const email=(req.query.email);
       if(email){
@@ -74,6 +75,7 @@ async function run() {
     })
 
     app.post ('/orders', async(req,res)=>{
+      
       const order = req.body;
       order.createdAt = new Date();
       const result = await ordersCollection.insertOne(order);
